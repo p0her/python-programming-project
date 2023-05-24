@@ -47,4 +47,4 @@ def returnMenu():
     return make_response(menu)
 
 if __name__ == '__main__':
-    app.run(port=80, host='0.0.0.0')
+    app.run(port=8888, host='0.0.0.0')
