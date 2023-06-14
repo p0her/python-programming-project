@@ -2,6 +2,7 @@ import tkinter
 import json
 import requests
 from datetime import date
+from PIL import Image
 
 class MEAL:
     def __init__(self):
@@ -45,7 +46,6 @@ class MEAL:
                 if "\x0a" in y:
                     y = y.replace("\x0a", "")
                 tmp.append(y)
-            print(tmp)
             self.ret[x] = tmp
 
     def get_breakfast(self):
@@ -56,7 +56,7 @@ class MEAL:
                 self.create_meal_text(125, 60 + 30 * i, student_meal, y)
 
         except KeyError:
-                self.error()
+                self.error(student_meal)
 
     def get_lunch(self, is_teacher=1):
         self.clear()
@@ -67,13 +67,13 @@ class MEAL:
             for i, y in enumerate(self.ret[self.today]):
                 self.create_meal_text(125, 60 + 30 * i, teacher_meal, y)
         except KeyError:
-                self.error()
+                self.error(teacher_meal)
         self.get_student()
         try:
             for i, y in enumerate(self.lunch[self.today]):
                 self.create_meal_text(125, 60 + 30 * i, student_meal, y)
         except KeyError:
-                self.error()
+                self.error(student_meal)
                 
     def get_dinner(self):
         self.clear()
@@ -82,13 +82,18 @@ class MEAL:
             for i, y in enumerate(self.dinner[self.today]):
                 self.create_meal_text(125, 60 + 30 * i, student_meal, y)
         except KeyError:
-                self.error()
+                self.error(student_meal)
 
 command_meal = MEAL()
 window = tkinter.Tk()
 window.title("KUS school-cafeteria app")
 window.geometry("600x800")
+img = Image.open('./kus2.png')
+img_resize = img.resize((60, 60))
+img_resize.save('./kus2.png')
+imgObj = tkinter.PhotoImage(file = './kus2.png')
 label1 = tkinter.Canvas(window, width=200, height = 60, background='white', bd=0, highlightthickness=0)
+label1.create_image(75, 30, image=imgObj)
 label1.grid(row = 0, column = 0)
 label2 = tkinter.Canvas(window, width=200, height = 60, background='white', bd=0, highlightthickness=0)
 label2.create_text(100, 30, text='오늘의 학식', fill='black', font=('Nanum Gothic', 25))
@@ -108,7 +113,7 @@ breakfast_btn = tkinter.Button(window, text="조식", command = lambda: command_
 lunch_btn = tkinter.Button(window, text="중식", command = lambda: command_meal.get_lunch())
 dinner_btn = tkinter.Button(window, text="석식", command = lambda: command_meal.get_dinner())
 
-breakfast_btn.place(x=310, y=70)
-lunch_btn.place(x=380, y=70)
-dinner_btn.place(x=450, y=70)
+breakfast_btn.place(x=200, y=70)
+lunch_btn.place(x=270, y=70)
+dinner_btn.place(x=340, y=70)
 window.mainloop()
