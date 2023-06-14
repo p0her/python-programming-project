@@ -40,11 +40,16 @@ def getMenuToJson():
         ret[current] = t
     return json.dumps(ret, ensure_ascii=False)
 
-menu = getMenuToJson()
 app = Flask(__name__)
-@app.route('/')
+
+@app.route('/teacher')
 def returnMenu():
+    menu = getMenuToJson()
     return make_response(menu)
 
+@app.route('/student')
+def returnStudentMenu():
+    menu = open('./student.json').read()
+    return make_response(menu)
 if __name__ == '__main__':
     app.run(port=8888, host='0.0.0.0')
