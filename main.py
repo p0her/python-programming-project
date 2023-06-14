@@ -10,8 +10,6 @@ class MEAL:
         self.breakfast = ""
         self.lunch = ""
         self.dinner = ""
-        self.text_id1 = ""
-        self.text_id2 = ""
         self.today = date.today().isoformat()
 
     def clear(self):
@@ -21,13 +19,22 @@ class MEAL:
         global student_meal 
         student_meal = tkinter.Canvas(window, width=250, height = 500, background='white', bd=0, highlightthickness=0)
         student_meal.place(x=305, y=120) 
+        teacher_meal.create_text(125, 15, fill='black', font=('Nanum Gothic', 25), text = '교직원')
+        student_meal.create_text(125, 15, fill='black', font=('Nanum Gothic', 25), text = '학생')
+        
     def get_student(self):
-        #self.url = 'http://127.0.0.1:8888/student'
+        #self.url = 'http://127.0.0.1:8888/student' -> this is debug for local
         self.url = 'http://gosegu.kr:8888/student'
         self.ret = json.loads(requests.get(self.url).text)
         self.breakfast = self.ret[0]
         self.lunch = self.ret[1]
         self.dinner = self.ret[2]
+
+    def create_meal_text(self, x, y, foo, content):
+        foo.create_text(x, y, fill='black', font=('Nanum Gothic', 20), text = content)
+        
+    def error(self, foo):
+        foo.create_text(125, 50, fill = 'black', font=('Nanum Gothic', 15), text = "오늘은 식단이 없습니다")
         
     def refilter(self):
         for x in self.ret:
@@ -35,50 +42,47 @@ class MEAL:
             for y in self.ret[x]:
                 if "&amp;" in y:
                     y = y.replace("&amp;", "&");
+                if "\x0a" in y:
+                    y = y.replace("\x0a", "")
                 tmp.append(y)
             print(tmp)
             self.ret[x] = tmp
+
     def get_breakfast(self):
         self.clear()
         self.get_student()
         try:
             for i, y in enumerate(self.breakfast[self.today]):
-                student_meal.create_text(125, 20 + 30*i, fill='black', font=('Nanum Gothic', 20), text = y)
+                self.create_meal_text(125, 60 + 30 * i, student_meal, y)
+
         except KeyError:
-                student_meal.create_text(125, 50, fill='black', font=('Nanum Gothic', 15), text = "오늘은 식단이 없습니다")
+                self.error()
+
     def get_lunch(self, is_teacher=1):
         self.clear()
-        if self.text_id1:
-            teacher_meal.delete(self.text_id1)
-        if self.text_id2:
-            student_meal.delete(self.text_id2)
         self.url = 'http://gosegu.kr:8888/teacher'
         self.ret = json.loads(requests.get(self.url).text)
         self.refilter()
         try:
             for i, y in enumerate(self.ret[self.today]):
-                teacher_meal.create_text(125, 20 + 30*i, fill='black', font=('Nanum Gothic', 20), text = y)
+                self.create_meal_text(125, 60 + 30 * i, teacher_meal, y)
         except KeyError:
-                teacher_meal.create_text(125, 50, fill='black', font=('Nanum Gothic', 15), text = "오늘은 식단이 없습니다")
+                self.error()
         self.get_student()
         try:
             for i, y in enumerate(self.lunch[self.today]):
-                student_meal.create_text(125, 20 + 30*i, fill='black', font=('Nanum Gothic', 20), text = y)
+                self.create_meal_text(125, 60 + 30 * i, student_meal, y)
         except KeyError:
-                student_meal.create_text(125, 50, fill='black', font=('Nanum Gothic', 15), text = "오늘은 식단이 없습니다")
+                self.error()
+                
     def get_dinner(self):
         self.clear()
-        if self.text_id1:
-            teacher_meal.delete(self.text_id1)
-        if self.text_id2:
-            student_meal.delete(self.text_id2)
-        student_meal.delete(self.text_id1)
         self.get_student()
         try:
             for i, y in enumerate(self.dinner[self.today]):
-                student_meal.create_text(125, 20 + 30*i, fill='black', font=('Nanum Gothic', 20), text = y)
+                self.create_meal_text(125, 60 + 30 * i, student_meal, y)
         except KeyError:
-                student_meal.create_text(125, 50, fill='black', font=('Nanum Gothic', 15), text = "오늘은 식단이 없습니다")
+                self.error()
 
 command_meal = MEAL()
 window = tkinter.Tk()
@@ -98,6 +102,8 @@ teacher_meal.place(x=45, y=120)
 student_meal = tkinter.Canvas(window, width=250, height = 500, background='white', bd=0, highlightthickness=0)
 student_meal.place(x=305, y=120)
 
+teacher_meal.create_text(125, 15, fill='black', font=('Nanum Gothic', 25), text = '교직원')
+student_meal.create_text(125, 15, fill='black', font=('Nanum Gothic', 25), text = '학생')
 breakfast_btn = tkinter.Button(window, text="조식", command = lambda: command_meal.get_breakfast())
 lunch_btn = tkinter.Button(window, text="중식", command = lambda: command_meal.get_lunch())
 dinner_btn = tkinter.Button(window, text="석식", command = lambda: command_meal.get_dinner())
