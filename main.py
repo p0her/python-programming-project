@@ -29,6 +29,15 @@ class MEAL:
         self.lunch = self.ret[1]
         self.dinner = self.ret[2]
         
+    def refilter(self):
+        for x in self.ret:
+            tmp = []
+            for y in self.ret[x]:
+                if "&amp;" in y:
+                    y = y.replace("&amp;", "&");
+                tmp.append(y)
+            print(tmp)
+            self.ret[x] = tmp
     def get_breakfast(self):
         self.clear()
         self.get_student()
@@ -45,6 +54,7 @@ class MEAL:
             student_meal.delete(self.text_id2)
         self.url = 'http://gosegu.kr:8888/teacher'
         self.ret = json.loads(requests.get(self.url).text)
+        self.refilter()
         try:
             for i, y in enumerate(self.ret[self.today]):
                 teacher_meal.create_text(125, 20 + 30*i, fill='black', font=('Nanum Gothic', 20), text = y)
